@@ -75,7 +75,8 @@ export function AddPlayerModal({
         enrollmentYear,
         redshirt: !!values.redshirt,
         // subset ratings captured; the prediction service will use them
-        subset: values.subset ?? {}
+        subset: values.subset ?? {},
+        season: registryYear,         // <-- add this
       })
     });
     if (!res.ok) {

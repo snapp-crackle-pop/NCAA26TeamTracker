@@ -2,13 +2,14 @@ import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 import { sanitizeStr } from '@/lib/enums';
+import { predictFromSubset } from '@/lib/predict';
 
 const prisma = new PrismaClient();
 
 const PlayerCreate = z.object({
   name: z.string().min(1),
   position: z.string(),
-  archetypeId: z.string().optional(),
+  archetypeId: z.string().min(1),
   heightIn: z.number().int().min(55).max(90).optional(),
   weightLb: z.number().int().min(120).max(400).optional(),
   handedness: z.string().optional(),
@@ -19,8 +20,9 @@ const PlayerCreate = z.object({
   redshirt: z.boolean().optional(),
   transferFrom: z.string().optional(),
   notes: z.string().optional(),
-  subset: z.record(z.string(), z.number().int().min(0).max(99)).optional()
-}).strip(); // drop extra keys
+  season: z.number().int(), // <-- season for initial snapshot (registryYear)
+  subset: z.record(z.string(), z.number().int().min(0).max(99)).default({})
+}).strip();
 
 export async function GET() {
   const players = await prisma.player.findMany({ orderBy: { name: 'asc' } });
@@ -31,7 +33,7 @@ export async function POST(req: Request) {
   const json = await req.json();
   const parsed = PlayerCreate.parse(json);
 
-  const created = await prisma.player.create({
+  const player = await prisma.player.create({
     data: {
       name: sanitizeStr(parsed.name),
       position: parsed.position.trim(),
@@ -46,9 +48,27 @@ export async function POST(req: Request) {
       redshirt: !!parsed.redshirt,
       transferFrom: sanitizeStr(parsed.transferFrom),
       notes: sanitizeStr(parsed.notes)
-      // subset is held client-side for now; prediction module will consume later
     }
   });
 
-  return NextResponse.json(created, { status: 201 });
+  // Initial predicted snapshot
+  const { ratings, ovr } = await predictFromSubset({
+    position: player.position,
+    archetypeId: player.archetypeId!,
+    subset: parsed.subset,
+    devTrait: player.devTrait as any,
+    devCap: player.devCap ?? null
+  });
+
+  await prisma.ratingSnapshot.create({
+    data: {
+      playerId: player.id,
+      season: parsed.season,
+      ratings: JSON.stringify(ratings),
+      ovr,
+      predicted: true
+    }
+  });
+
+  return NextResponse.json(player, { status: 201 });
 }

@@ -59,3 +59,4 @@ function csvToRows(p: string): string[][] {
     await prisma.$disconnect();
   }
 })();
+
