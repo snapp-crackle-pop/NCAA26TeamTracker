@@ -145,6 +145,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hookform/resolvers@npm:^5.2.0":
+  version: 5.2.0
+  resolution: "@hookform/resolvers@npm:5.2.0"
+  dependencies:
+    "@standard-schema/utils": "npm:^0.3.0"
+  peerDependencies:
+    react-hook-form: ^7.55.0
+  checksum: 10c0/3f302d40f5886085dd796ca32ddcf31d065f1ff39e3ee53e9492be2ea869103a7429fdee6aa7709d2db584a2f0d9fcc7a120b18d1d1f6404cc52ea80bd9dbcc1
+  languageName: node
+  linkType: hard
+
 "@humanfs/core@npm:^0.19.1":
   version: 0.19.1
   resolution: "@humanfs/core@npm:0.19.1"
@@ -635,6 +646,13 @@ __metadata:
   version: 1.12.0
   resolution: "@rushstack/eslint-patch@npm:1.12.0"
   checksum: 10c0/1e567656d92632c085a446f40767bc451caffe1131e8d6a7a3e8f3e3f4167f5f29744a84c709f2440f299442d4bc68ff773784462166800b8c09c0e08042415b
+  languageName: node
+  linkType: hard
+
+"@standard-schema/utils@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "@standard-schema/utils@npm:0.3.0"
+  checksum: 10c0/6eb74cd13e52d5fc74054df51e37d947ef53f3ab9e02c085665dcca3c38c60ece8d735cebbdf18fbb13c775fbcb9becb3f53109b0e092a63f0f7389ce0993fd0
   languageName: node
   linkType: hard
 
@@ -3494,6 +3512,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-hook-form@npm:^7.61.1":
+  version: 7.61.1
+  resolution: "react-hook-form@npm:7.61.1"
+  peerDependencies:
+    react: ^16.8.0 || ^17 || ^18 || ^19
+  checksum: 10c0/c241bca80f6d5f9f8b4f24b668670a3ee7249f9cf99537219c4ac1072431493d3768a910b6f2aaff20689a727d0e2797aeacb1ab9285b3e59309de3dd1bead41
+  languageName: node
+  linkType: hard
+
 "react-is@npm:^16.13.1":
   version: 16.13.1
   resolution: "react-is@npm:16.13.1"
@@ -4329,6 +4356,7 @@ __metadata:
   resolution: "web@workspace:."
   dependencies:
     "@eslint/eslintrc": "npm:^3"
+    "@hookform/resolvers": "npm:^5.2.0"
     "@prisma/client": "npm:^6.12.0"
     "@tailwindcss/postcss": "npm:^4"
     "@tanstack/react-query": "npm:^5.83.0"
@@ -4343,6 +4371,7 @@ __metadata:
     prisma: "npm:^6.12.0"
     react: "npm:19.1.0"
     react-dom: "npm:19.1.0"
+    react-hook-form: "npm:^7.61.1"
     react-resizable-panels: "npm:^3.0.3"
     tailwindcss: "npm:^4"
     ts-node: "npm:^10.9.2"
