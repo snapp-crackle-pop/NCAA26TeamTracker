@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")  // -> file:./dev.db
+}
+
+model Player {
+  id            String   @id @default(cuid())
+  name          String
+  position      String   // enum later
+  archetypeId   String?
+  archetype     Archetype? @relation(fields: [archetypeId], references: [id])
+  heightIn      Int?
+  weightLb      Int?
+  handedness    String?   // e.g., "R"/"L" for QB
+  sourceType    String    // Recruiting | Transfer | Existing
+  devTrait      String    // Normal | Impact | Star | Elite
+  devCap        Int?      // 0–99, optional
+  enrollmentYear Int
+  redshirt      Boolean   @default(false)
+  transferFrom  String?
+  notes         String?
+
+  snapshots     RatingSnapshot[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Archetype {
+  id            String   @id @default(cuid())
+  position      String
+  name          String
+  subsetKeys    String   // JSON stringified string[]
+  baseTemplate  String?  // JSON ratings template
+  mappingConfig String?  // JSON coeffs/weights
+
+  players       Player[]
+}
+
+model RatingSnapshot {
+  id        String   @id @default(cuid())
+  playerId  String
+  player    Player   @relation(fields: [playerId], references: [id])
+  season    Int      // absolute year
+  ratings   String   // JSON {key:0-99}
+  ovr       Int
+  predicted Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+}
+
+model Formation {
+  id        String @id @default(cuid())
+  side      String // OFF | DEF
+  name      String
+  variant   String?
+  slots     FormationSlot[]
+}
+
+model FormationSlot {
+  id           String    @id @default(cuid())
+  formationId  String
+  formation    Formation @relation(fields: [formationId], references: [id])
+  slotKey      String    // e.g., WR1, CB2
+  positionHints String   // JSON string[] of allowed positions
+  x            Float     // canvas coordinates 0..1
+  y            Float
+}

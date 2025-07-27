@@ -1,0 +1,80 @@
+POSITION,ARCHETYPE,ATTRIBUTE 1,ATTRIBUTE 2,ATTRIBUTE 3,ATTRIBUTE 4,ATTRIBUTE 5,ATTRIBUTE 6,ATTRIBUTE 7,ATTRIBUTE 8,ATTRIBUTE 9,ATTRIBUTE 10
+QB,Pocket Passer,Awareness,Throw on Run,Throw Power,Under Pressure,Short Accuracy,Break Sack,Medium Accuracy,Speed,Deep Accuracy,Acceleration
+QB,Dual Threat,Awareness,Throw on Run,Throw Power,Under Pressure,Short Accuracy,Break Sack,Medium Accuracy,Speed,Deep Accuracy,Acceleration
+QB,Backfield Creator,Awareness,Throw on Run,Throw Power,Under Pressure,Short Accuracy,Break Sack,Medium Accuracy,Speed,Deep Accuracy,Acceleration
+QB,Pure Runner,Awareness,Throw on Run,Throw Power,Under Pressure,Short Accuracy,Break Sack,Medium Accuracy,Speed,Deep Accuracy,Acceleration
+HB,Contact Seeker,Awareness,Change of Direction,Speed,Juke Move,Acceleration,Spin Move,Carrying,BC Vision,Break Tackle,Catching
+HB,East/West Playmaker,Awareness,Change of Direction,Speed,Juke Move,Acceleration,Spin Move,Carrying,BC Vision,Break Tackle,Catching
+HB,Backfield Threat,Awareness,Change of Direction,Speed,Juke Move,Acceleration,Spin Move,Carrying,BC Vision,Break Tackle,Catching
+HB,Elusive Bruiser,Awareness,Change of Direction,Speed,Juke Move,Acceleration,Spin Move,Carrying,BC Vision,Break Tackle,Catching
+HB,North/South Receiver,Awareness,Change of Direction,Speed,Juke Move,Acceleration,Spin Move,Carrying,BC Vision,Break Tackle,Catching
+HB,North/South Blocker,Awareness,Change of Direction,Speed,Juke Move,Acceleration,Spin Move,Carrying,BC Vision,Break Tackle,Catching
+FB,Utility,Impact Blocking,Strength,Awareness,Agility,Short Route,BC Vision,Catching,Speed,Carrying,Acceleration
+FB,Blocking,Lead Block,Impact Blocking,Awareness,Break Tackle,Run Block,Carrying,Strength,Short Route,Trucking,Run Block Power
+WR,Speedster,Awareness,Spectacular Catch,Speed,Short Route,Acceleration,Medium Route,Catching,Deep Route,Catch in Traffic,Release
+WR,Elusive Route Runner,Awareness,Spectacular Catch,Speed,Short Route,Acceleration,Medium Route,Catching,Deep Route,Catch in Traffic,Agility
+WR,Physical Route Runner,Awareness,Spectacular Catch,Speed,Short Route,Acceleration,Medium Route,Catching,Deep Route,Catch in Traffic,Release
+WR,Contested Specialist,Awareness,Spectacular Catch,Speed,Short Route,Acceleration,Medium Route,Catching,Deep Route,Catch in Traffic,Release
+WR,Gritty Possession,Awareness,Spectacular Catch,Speed,Short Route,Acceleration,Medium Route,Catching,Deep Route,Catch in Traffic,Run Block
+WR,Gadget,Awareness,Spectacular Catch,Speed,Short Route,Acceleration,Medium Route,Catching,Deep Route,Catch in Traffic,Throw Power
+WR,Route Artist,Awareness,Spectacular Catch,Speed,Short Route,Acceleration,Medium Route,Catching,Deep Route,Catch in Traffic,Agility
+TE,Pure Blocker,Awareness,Pass Block,Speed,Catching,Strength,Catch in Traffic,Acceleration,Short Route,Run Block,Medium Route
+TE,Pure Possession,Awareness,Pass Block,Speed,Catching,Strength,Catch in Traffic,Acceleration,Short Route,Run Block,Medium Route
+TE,Vertical Threat,Awareness,Pass Block,Speed,Catching,Strength,Catch in Traffic,Acceleration,Medium Route,Run Block,Deep Route
+TE,Gritty Possession,Awareness,Pass Block,Speed,Catching,Strength,Catch in Traffic,Accleration,Short Route,Run Block,Medium Route
+TE,Physical Route Runner,Awareness,Pass Block,Speed,Catching,Strength,Catch in Traffic,Accleration,Short Route,Run Block,Medium Route
+LT,Raw Strength,Awareness,Pass Block Power,Run Block,Pass Block Finesse,Run Block Power,Impact Blocking,Run Block Finesse,Agility,Pass Block,Strength
+LT,Well Rounded,Awareness,Pass Block Power,Run Block,Pass Block Finesse,Run Block Power,Impact Blocking,Run Block Finesse,Agility,Pass Block,Acceleration
+LT,Pass Protector,Awareness,Pass Block Power,Run Block,Pass Block Finesse,Run Block Power,Impact Blocking,Run Block Finesse,Agility,Pass Block,Acceleration
+LT,Agile,Awareness,Pass Block Power,Run Block,Pass Block Finesse,Run Block Power,Impact Blocking,Run Block Finesse,Agility,Pass Block,Acceleration
+LG,Raw Strength,Awareness,Pass Block Power,Run Block,Pass Block Finesse,Run Block Power,Impact Blocking,Run Block Finesse,Agility,Pass Block,Strength
+LG,Well Rounded,Awareness,Pass Block Power,Run Block,Pass Block Finesse,Run Block Power,Impact Blocking,Run Block Finesse,Agility,Pass Block,Acceleration
+LG,Pass Protector,Awareness,Pass Block Power,Run Block,Pass Block Finesse,Run Block Power,Impact Blocking,Run Block Finesse,Agility,Pass Block,Acceleration
+LG,Agile,Awareness,Pass Block Power,Run Block,Pass Block Finesse,Run Block Power,Impact Blocking,Run Block Finesse,Agility,Pass Block,Acceleration
+C,Raw Strength,Awareness,Pass Block Power,Run Block,Pass Block Finesse,Run Block Power,Impact Blocking,Run Block Finesse,Agility,Pass Block,Strength
+C,Well Rounded,Awareness,Pass Block Power,Run Block,Pass Block Finesse,Run Block Power,Impact Blocking,Run Block Finesse,Agility,Pass Block,Acceleration
+C,Pass Protector,Awareness,Pass Block Power,Run Block,Pass Block Finesse,Run Block Power,Impact Blocking,Run Block Finesse,Agility,Pass Block,Acceleration
+C,Agile,Awareness,Pass Block Power,Run Block,Pass Block Finesse,Run Block Power,Impact Blocking,Run Block Finesse,Agility,Pass Block,Acceleration
+RG,Raw Strength,Awareness,Pass Block Power,Run Block,Pass Block Finesse,Run Block Power,Impact Blocking,Run Block Finesse,Agility,Pass Block,Strength
+RG,Well Rounded,Awareness,Pass Block Power,Run Block,Pass Block Finesse,Run Block Power,Impact Blocking,Run Block Finesse,Agility,Pass Block,Acceleration
+RG,Pass Protector,Awareness,Pass Block Power,Run Block,Pass Block Finesse,Run Block Power,Impact Blocking,Run Block Finesse,Agility,Pass Block,Acceleration
+RG,Agile,Awareness,Pass Block Power,Run Block,Pass Block Finesse,Run Block Power,Impact Blocking,Run Block Finesse,Agility,Pass Block,Acceleration
+RT,Raw Strength,Awareness,Pass Block Power,Run Block,Pass Block Finesse,Run Block Power,Impact Blocking,Run Block Finesse,Agility,Pass Block,Strength
+RT,Well Rounded,Awareness,Pass Block Power,Run Block,Pass Block Finesse,Run Block Power,Impact Blocking,Run Block Finesse,Agility,Pass Block,Acceleration
+RT,Pass Protector,Awareness,Pass Block Power,Run Block,Pass Block Finesse,Run Block Power,Impact Blocking,Run Block Finesse,Agility,Pass Block,Acceleration
+RT,Agile,Awareness,Pass Block Power,Run Block,Pass Block Finesse,Run Block Power,Impact Blocking,Run Block Finesse,Agility,Pass Block,Acceleration
+LEDG,Edge Setter,Awareness,Hit Power,Strength,Power Moves,Acceleration,Finesse Moves,Block Shedding,Speed,Tackle,Pursuit
+LEDG,Pure Power,Awareness,Hit Power,Strength,Power Moves,Acceleration,Finesse Moves,Block Shedding,Speed,Tackle,Pursuit
+LEDG,Power Rusher,Awareness,Hit Power,Strength,Power Moves,Acceleration,Finesse Moves,Block Shedding,Speed,Tackle,Pursuit
+LEDG,Speed Rusher,Awareness,Hit Power,Strength,Power Moves,Acceleration,Finesse Moves,Block Shedding,Speed,Tackle,Pursuit
+REDG,Edge Setter,Awareness,Hit Power,Strength,Power Moves,Acceleration,Finesse Moves,Block Shedding,Speed,Tackle,Pursuit
+REDG,Pure Power,Awareness,Hit Power,Strength,Power Moves,Acceleration,Finesse Moves,Block Shedding,Speed,Tackle,Pursuit
+REDG,Power Rusher,Awareness,Hit Power,Strength,Power Moves,Acceleration,Finesse Moves,Block Shedding,Speed,Tackle,Pursuit
+REDG,Speed Rusher,Awareness,Hit Power,Strength,Power Moves,Acceleration,Finesse Moves,Block Shedding,Speed,Tackle,Pursuit
+DT,Gap Specialist,Awareness,Hit Power,Strength,Power Moves,Acceleration,Finesse Moves,Block Shedding,Speed,Tackle,Pursuit
+DT,Pure Power,Awareness,Hit Power,Strength,Power Moves,Acceleration,Finesse Moves,Block Shedding,Speed,Tackle,Pursuit
+DT,Power Rusher,Awareness,Hit Power,Strength,Power Moves,Acceleration,Finesse Moves,Block Shedding,Speed,Tackle,Pursuit
+DT,Speed Rusher,Awareness,Hit Power,Strength,Power Moves,Acceleration,Finesse Moves,Block Shedding,Speed,Tackle,Pursuit
+SAM,Lurker,Awareness,Tackle,Speed,Hit Power,Acceleration,Pursuit,Strength,Man Coverage,Play Recognition,Zone Coverage
+SAM,Signal Caller,Awareness,Tackle,Speed,Hit Power,Acceleration,Pursuit,Strength,Man Coverage,Play Recognition,Zone Coverage
+SAM,Thumper,Awareness,Tackle,Speed,Hit Power,Acceleration,Pursuit,Strength,Man Coverage,Play Recognition,Zone Coverage
+MIKE,Lurker,Awareness,Tackle,Speed,Hit Power,Acceleration,Pursuit,Strength,Man Coverage,Play Recognition,Zone Coverage
+MIKE,Signal Caller,Awareness,Tackle,Speed,Hit Power,Acceleration,Pursuit,Strength,Man Coverage,Play Recognition,Zone Coverage
+MIKE,Thumper,Awareness,Tackle,Speed,Hit Power,Acceleration,Pursuit,Strength,Man Coverage,Play Recognition,Zone Coverage
+WILL,Lurker,Awareness,Tackle,Speed,Hit Power,Acceleration,Pursuit,Strength,Man Coverage,Play Recognition,Zone Coverage
+WILL,Signal Caller,Awareness,Tackle,Speed,Hit Power,Acceleration,Pursuit,Strength,Man Coverage,Play Recognition,Zone Coverage
+WILL,Thumper,Awareness,Tackle,Speed,Hit Power,Acceleration,Pursuit,Strength,Man Coverage,Play Recognition,Zone Coverage
+CB,Field,Awareness,Man Coverage,Speed,Zone Coverage,Acceleration,Press,Change of Direction,Catching,Agility,Tackle
+CB,Boundary,Awareness,Man Coverage,Speed,Zone Coverage,Acceleration,Press,Change of Direction,Catching,Agility,Tackle
+CB,Zone,Awareness,Man Coverage,Speed,Zone Coverage,Acceleration,Press,Change of Direction,Catching,Agility,Tackle
+CB,Bump and Run,Awareness,Man Coverage,Speed,Zone Coverage,Acceleration,Press,Change of Direction,Catching,Agility,Tackle
+FS,Box Specialist,Awareness,Man Coverage,Speed,Zone Coverage,Acceleration,Press,Change of Direction,Catching,Agility,Tackle
+FS,Coverage Specialist,Awareness,Man Coverage,Speed,Zone Coverage,Acceleration,Press,Change of Direction,Catching,Agility,Tackle
+FS,Hybrid,Awareness,Man Coverage,Speed,Zone Coverage,Acceleration,Press,Change of Direction,Catching,Agility,Tackle
+SS,Box Specialist,Awareness,Man Coverage,Speed,Zone Coverage,Acceleration,Press,Change of Direction,Catching,Agility,Tackle
+SS,Coverage Specialist,Awareness,Man Coverage,Speed,Zone Coverage,Acceleration,Press,Change of Direction,Catching,Agility,Tackle
+SS,Hybrid,Awareness,Man Coverage,Speed,Zone Coverage,Acceleration,Press,Change of Direction,Catching,Agility,Tackle
+K,Accurate,Awareness,Agility,Kick Power,Break Tackle,Kick Accuracy,Throw Power,Speed,Throw on Run,Acceleration,Short Accuracy
+K,Power,Awareness,Agility,Kick Power,Break Tackle,Kick Accuracy,Throw Power,Speed,Throw on Run,Acceleration,Short Accuracy
+P,Accurate,Awareness,Agility,Kick Power,Break Tackle,Kick Accuracy,Throw Power,Speed,Throw on Run,Acceleration,Short Accuracy
+P,Power,Awareness,Agility,Kick Power,Break Tackle,Kick Accuracy,Throw Power,Speed,Throw on Run,Acceleration,Short Accuracy
