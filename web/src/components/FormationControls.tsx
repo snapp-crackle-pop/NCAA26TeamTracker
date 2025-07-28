@@ -1,65 +1,125 @@
 'use client';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-import * as React from 'react';
-
+type ViewMode = 'starters' | 'backups' | 'weighted';
 type Formation = { id: string; side: 'OFF'|'DEF'|string; name: string; variant: string | null };
 
-export type ViewMode = 'starters' | 'backups' | 'weighted';
-
-export function FormationControls(props: {
+export function FormationControls({
+  formations,
+  side,
+  onSideChange,
+  formationId,
+  onFormationChange,
+  view,
+  onViewChange,
+}: {
   formations: Formation[];
   side: 'OFF'|'DEF';
+  onSideChange: (s: 'OFF'|'DEF') => void;
   formationId?: string;
+  onFormationChange: (id?: string) => void;
   view: ViewMode;
-  onSideChange: (side: 'OFF'|'DEF') => void;
-  onFormationChange: (id: string) => void;
   onViewChange: (v: ViewMode) => void;
 }) {
-  const { formations, side, formationId, view, onSideChange, onFormationChange, onViewChange } = props;
+  const list = useMemo(
+    () => formations.filter(f => (f.side as string).toUpperCase() === side),
+    [formations, side]
+  );
+  // ensure selection is valid when side changes
+  useEffect(() => {
+    if (!list.length) { onFormationChange(undefined); return; }
+    if (!formationId || !list.find(f => f.id === formationId)) onFormationChange(list[0].id);
+  }, [side, list.map(f=>f.id).join(',' /* deps key */)]); // eslint-disable-line
 
-  const sideFormations = formations.filter(f => f.side === side);
-  const labelFor = (f: Formation) => f.variant ? `${f.name}: ${f.variant}` : f.name;
-
-  React.useEffect(() => {
-    // ensure a valid formation is selected when side changes
-    if (!formationId || !sideFormations.some(f => f.id === formationId)) {
-      if (sideFormations[0]) onFormationChange(sideFormations[0].id);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [side, formations.length]);
+  const current = useMemo(
+    () => list.find(f => f.id === formationId) ?? list[0],
+    [list, formationId]
+  );
 
   return (
-    <div className="flex items-center gap-3 flex-wrap">
-      <div className="flex gap-2">
-        <button
-          className={`px-3 py-1 rounded ${side==='OFF'?'bg-emerald-700':'bg-neutral-800'}`}
-          onClick={() => onSideChange('OFF')}
-        >Offense</button>
-        <button
-          className={`px-3 py-1 rounded ${side==='DEF'?'bg-emerald-700':'bg-neutral-800'}`}
-          onClick={() => onSideChange('DEF')}
-        >Defense</button>
-      </div>
+    <div style={{ display:'flex', alignItems:'center', gap:12, fontSize:12 }}>
+      <HoverMenu
+        label={`< ${side === 'OFF' ? 'OFFENSE' : 'DEFENSE'} >`}
+        items={[
+          { label: 'OFFENSE', onClick: () => onSideChange('OFF') },
+          { label: 'DEFENSE', onClick: () => onSideChange('DEF') },
+        ]}
+      />
+      <HoverMenu
+        label={current ? `${current.name}${current.variant ? `: ${current.variant}` : ''}` : '(none)'}
+        items={list.map(f => ({
+          label: `${f.name}${f.variant ? `: ${f.variant}` : ''}`,
+          onClick: () => onFormationChange(f.id),
+        }))}
+      />
+      <HoverMenu
+        label={view === 'starters' ? 'Starters ▾' : view === 'backups' ? 'Backups ▾' : 'Weighted ▾'}
+        items={[
+          { label: 'Starters', onClick: () => onViewChange('starters') },
+          { label: 'Backups',  onClick: () => onViewChange('backups') },
+          { label: 'Weighted depth', onClick: () => onViewChange('weighted') },
+        ]}
+      />
+    </div>
+  );
+}
 
-      <select
-        className="bg-neutral-800 px-2 py-1 rounded"
-        value={formationId}
-        onChange={e => onFormationChange(e.target.value)}
+function HoverMenu({
+  label,
+  items,
+  align = 'left',
+}: {
+  label: string;
+  items: { label: string; onClick: () => void }[];
+  align?: 'left' | 'right';
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const onDoc = (e: PointerEvent) => {
+      const node = ref.current;
+      if (node && !node.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('pointerdown', onDoc);
+    return () => document.removeEventListener('pointerdown', onDoc);
+  }, []);
+
+  const menuStyle: React.CSSProperties = {
+    position: 'absolute',
+    top: 22,
+    background: 'var(--background)',
+    border: '1px solid var(--chalk-stroke)',
+    borderRadius: 8,
+    padding: 6,
+    zIndex: 30,
+    minWidth: 200,
+    display: open ? 'block' : 'none',
+    ...(align === 'right' ? { right: 0 } : { left: 0 }),
+  };
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => setOpen(v => !v)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setOpen(v => !v); }}
+        style={{ fontWeight: 700, letterSpacing: 1, cursor: 'pointer', userSelect: 'none' }}
       >
-        {sideFormations.map(f => (
-          <option key={f.id} value={f.id}>{labelFor(f)}</option>
-        ))}
-      </select>
-
-      <div className="flex gap-2">
-        {(['starters','backups','weighted'] as ViewMode[]).map(m => (
-          <button
-            key={m}
-            className={`px-3 py-1 rounded ${view===m?'bg-sky-700':'bg-neutral-800'}`}
-            onClick={() => onViewChange(m)}
+        {label}
+      </div>
+      <div style={menuStyle} onPointerDown={(e) => e.stopPropagation()}>
+        {items.map((it, idx) => (
+          <div
+            key={idx}
+            onClick={() => { setOpen(false); it.onClick(); }}
+            style={{ padding: '6px 8px', cursor: 'pointer', borderRadius: 6 }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'color-mix(in oklab, var(--foreground) 8%, transparent)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
           >
-            {m.charAt(0).toUpperCase() + m.slice(1)}
-          </button>
+            {it.label}
+          </div>
         ))}
       </div>
     </div>

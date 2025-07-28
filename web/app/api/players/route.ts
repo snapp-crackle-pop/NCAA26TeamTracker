@@ -24,10 +24,36 @@ const PlayerCreate = z.object({
   subset: z.record(z.string(), z.number().int().min(0).max(99)).default({})
 }).strip();
 
-export async function GET() {
-  const players = await prisma.player.findMany({ orderBy: { name: 'asc' } });
-  return NextResponse.json(players);
-}
+export async function GET(req: Request) {
+    const { searchParams } = new URL(req.url);
+    const seasonStr = searchParams.get('season');
+    const season = seasonStr ? Number(seasonStr) : NaN;
+    if (!seasonStr || Number.isNaN(season)) {
+      return NextResponse.json({ error: 'season required' }, { status: 400 });
+    }
+  
+    // Get OVR snapshot for the requested season (if present)
+    const snapshots = await prisma.ratingSnapshot.findMany({
+      where: { season },
+      select: { playerId: true, ovr: true },
+    });
+    const byPlayer = new Map(snapshots.map((s) => [s.playerId, s.ovr]));
+  
+    const players = await prisma.player.findMany({
+      orderBy: [{ position: 'asc' }, { name: 'asc' }],
+      select: { id: true, name: true, position: true, classYear: true },
+    });
+  
+    const rows = players.map((p) => ({
+      id: p.id,
+      name: p.name,
+      position: p.position,
+      classYear: p.classYear,
+      ovr: byPlayer.get(p.id) ?? null,
+    }));
+  
+    return NextResponse.json(rows);
+  }
 
 export async function POST(req: Request) {
   const json = await req.json();

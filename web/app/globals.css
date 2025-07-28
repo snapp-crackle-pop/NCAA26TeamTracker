@@ -1,0 +1,99 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==== NCAA26 UI polish add-on ==== */
+
+/* explicit theme hook (used by ThemeToggle) */
+html[data-theme='light'] {
+  --background: #fafafa;
+  --foreground: #101113;
+  --panel: #ffffffcc;
+  --chalk-stroke: rgba(16,17,19,.25);
+  --grid-line: rgba(0,0,0,.06);
+}
+html[data-theme='dark'] {
+  --background: #0d1117;            /* slightly blue-black chalkboard */
+  --foreground: #e6e7ea;
+  --panel: #0f141acc;                /* glassy dark panel */
+  --chalk-stroke: rgba(255,255,255,.28);
+  --grid-line: rgba(255,255,255,.08);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* chalkboard grid */
+.chalk-grid {
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* sketch border panels (LHS/RHS shells) */
+.sketch-panel {
+  border: 1.5px solid var(--chalk-stroke);
+  border-radius: 16px;
+  backdrop-filter: blur(6px);
+  background: var(--panel);
+}
+
+/* top bar */
+.app-topbar {
+  border-bottom: 1px solid var(--chalk-stroke);
+  background: color-mix(in oklab, var(--background) 92%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+/* buttons and controls */
+.btn {
+  border: 1px solid var(--chalk-stroke);
+  border-radius: 10px;
+  padding: .375rem .625rem;
+}
+.btn:hover { background: color-mix(in oklab, var(--foreground) 6%, transparent); }
+
+/* floating settings button */
+.fab {
+  border: 1px solid var(--chalk-stroke);
+  border-radius: 9999px;
+  background: color-mix(in oklab, var(--background) 75%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+/* keep grid from shimmering while zooming */
+svg { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+
+/* SVG “chalk” outline for player nodes */
+svg .player-node {
+  stroke: var(--chalk-stroke);
+  stroke-width: 1.5;
+  filter: drop-shadow(0 0.5px 0 color-mix(in oklab, var(--foreground) 12%, transparent));
+}
+svg .player-label {
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: color-mix(in oklab, var(--background) 55%, transparent);
+  stroke-width: 2;
+}
+
+/* table polish */
+.table-th {
+  font-size: .75rem;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  opacity: .7;
+}
+html, body { height: 100%; overflow: hidden; }
+.overlay-card{
+  border: 1px solid var(--chalk-stroke);
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--background) 82%, transparent);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+  color: var(--foreground);
+}
