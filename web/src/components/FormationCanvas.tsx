@@ -65,7 +65,7 @@ export function FormationCanvas({ formationId, season, view }: { formationId?: s
     const host = outerRef.current;
     if (!host || worldNodes.length === 0) return;
     const rect = host.getBoundingClientRect();
-    const pad = 48;
+    const pad = 200;
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     for (const n of worldNodes) { if (n.X < minX) minX = n.X; if (n.Y < minY) minY = n.Y; if (n.X > maxX) maxX = n.X; if (n.Y > maxY) maxY = n.Y; }
     const bbW = Math.max(1, maxX - minX), bbH = Math.max(1, maxY - minY);
@@ -186,15 +186,19 @@ export function FormationCanvas({ formationId, season, view }: { formationId?: s
 
         {/* Camera controls — TOP RIGHT */}
         <div
-          style={{
-            position:'absolute',
-            top: 10,
-            right: 10,
-            zIndex: 20,
-            display: 'flex',
-            gap: 8,
-          }}
-        >
+  style={{
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 70,
+    display: 'flex',
+    gap: 8,
+    pointerEvents: 'auto',
+  }}
+  onPointerDown={(e) => e.stopPropagation()}
+  onPointerMove={(e) => e.stopPropagation()}
+  onWheel={(e) => e.stopPropagation()}
+>
           <button className="btn text-sm w-8 h-8" onClick={zoomIn}>＋</button>
           <button className="btn text-sm w-8 h-8" onClick={zoomOut}>－</button>
           <button className="btn text-sm w-8 h-8" onClick={resetView}>⟲</button>
