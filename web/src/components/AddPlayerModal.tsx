@@ -1,201 +1,208 @@
 'use client';
 
-import * as React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { DEV_TRAITS, POSITIONS, deriveEnrollmentYear, sanitizeStr, type ClassYear } from '@/lib/enums';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 
-type ArchetypeLite = { id: string; position: string; name: string; subsetKeys: string[] };
+type Props = {
+  open: boolean;
+  season: number;
+  onClose: () => void;
+  onCreated?: () => void;
+};
 
-const FormSchema = z.object({
-  name: z.string().min(1),
-  position: z.string(),
-  archetypeId: z.string().min(1),
-  classYear: z.enum(['Freshman','Sophomore','Junior','Senior']),
-  redshirt: z.boolean().optional(),
-  heightIn: z.coerce.number().int().min(55).max(90).optional(),
-  weightLb: z.coerce.number().int().min(120).max(400).optional(),
-  handedness: z.enum(['R','L']).optional(),
-  sourceType: z.enum(['Recruiting','Transfer Portal','Existing Roster']),
-  devTrait: z.enum(DEV_TRAITS),
-  devCap: z.coerce.number().int().min(0).max(99).optional(),
-  subset: z.record(z.string(), z.coerce.number().int().min(0).max(99)).optional()
-});
+const toInches = (ft: number, inch: number) => ft * 12 + inch;
 
-export function AddPlayerModal({
-  open, onClose, registryYear
-}: { open: boolean; onClose: () => void; registryYear: number; }) {
-  const [archetypes, setArchetypes] = React.useState<ArchetypeLite[]>([]);
-  const [filtered, setFiltered] = React.useState<ArchetypeLite[]>([]);
-  const [subsetKeys, setSubsetKeys] = React.useState<string[]>([]);
+export default function AddPlayerModal({ open, season, onClose, onCreated }: Props) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
-  const { register, handleSubmit, watch, reset, formState: { errors, isSubmitting } } =
-    useForm<z.infer<typeof FormSchema>>({ resolver: zodResolver(FormSchema), defaultValues: {
-      sourceType: 'Recruiting', devTrait: 'Normal', classYear: 'Freshman'
-    }});
+  // Close on ESC
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, onClose]);
 
-  const position = watch('position');
-  const archetypeId = watch('archetypeId');
+  // Lock scroll when open
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, [open]);
 
-  React.useEffect(() => {
-    fetch('/api/archetypes').then(r => r.json()).then((rows: ArchetypeLite[]) => {
-      setArchetypes(rows);
-      setFiltered(rows);
-    });
-  }, []);
+  const [pos, setPos] = useState('WR');
+  const [first, setFirst] = useState('');
+  const [last, setLast] = useState('');
+  const [ft, setFt] = useState(6);
+  const [inch, setInch] = useState(0);
+  const [wt, setWt] = useState(200);
+  const [enroll, setEnroll] = useState(season);
+  const [redshirt, setRedshirt] = useState(false);
+  const [ovr, setOvr] = useState<number | ''>('');
+  const [saving, setSaving] = useState(false);
 
-  React.useEffect(() => {
-    setFiltered(archetypes.filter(a => !position || a.position === position));
-  }, [position, archetypes]);
-
-  React.useEffect(() => {
-    const a = archetypes.find(a => a.id === archetypeId);
-    setSubsetKeys(a?.subsetKeys ?? []);
-  }, [archetypeId, archetypes]);
-
-  const onSubmit = async (values: z.infer<typeof FormSchema>) => {
-    const name = sanitizeStr(values.name);
-    const enrollmentYear = deriveEnrollmentYear(registryYear, values.classYear as ClassYear, !!values.redshirt);
-
-    // Server owns final sanitize/derive, but we do it client-side too
-    const res = await fetch('/api/players', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json' },
-      body: JSON.stringify({
-        name,
-        position: values.position,
-        archetypeId: values.archetypeId,
-        heightIn: values.heightIn ?? undefined,
-        weightLb: values.weightLb ?? undefined,
-        handedness: values.handedness ?? undefined,
-        sourceType: values.sourceType,
-        devTrait: values.devTrait,
-        devCap: values.devCap ?? undefined,
-        enrollmentYear,
-        redshirt: !!values.redshirt,
-        // subset ratings captured; the prediction service will use them
-        subset: values.subset ?? {},
-        season: registryYear,         // <-- add this
-      })
-    });
-    if (!res.ok) {
-      const txt = await res.text();
-      alert(`Failed to add player: ${txt}`);
-      return;
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const res = await fetch('/api/players', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          position: pos,
+          firstName: first.trim(),
+          lastName: last.trim(),
+          heightIn: toInches(Number(ft), Number(inch)),
+          weightLb: Number(wt),
+          enrollmentYear: Number(enroll),
+          redshirt: Boolean(redshirt),
+          snapshot: { season, ovr: ovr === '' ? null : Number(ovr) },
+        }),
+      });
+      if (!res.ok) throw new Error(`POST /api/players ${res.status}`);
+      onCreated?.();
+      onClose();
+    } catch (err) {
+      console.error(err);
+      alert('Could not add player.');
+    } finally {
+      setSaving(false);
     }
-    reset();
-    onClose();
+  }
+
+  if (!mounted || !open) return null;
+
+  // Inline styles to guarantee centering + backdrop
+  const overlayStyle: React.CSSProperties = {
+    position: 'fixed',
+    inset: 0,
+    zIndex: 2000,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    background: 'rgba(0,0,0,0.55)',
+    backdropFilter: 'blur(2px)',
   };
 
-  if (!open) return null;
+  const cardStyle: React.CSSProperties = {
+    width: 'min(760px, 96vw)',
+    maxHeight: '90vh',
+    overflow: 'auto',
+    borderRadius: 16,
+    background: '#111',
+    color: '#f3f4f6',
+    boxShadow: '0 24px 64px rgba(0,0,0,0.55)',
+    border: '1px solid rgba(255,255,255,0.08)',
+  };
 
-  return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div className="w-[640px] max-w-[95vw] bg-neutral-900 border border-neutral-700 rounded-xl p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold">Add Player</h2>
-          <button onClick={onClose} className="px-2 py-1 rounded bg-neutral-800">Close</button>
+  const sectionStyle: React.CSSProperties = { padding: '16px 20px' };
+  const headerFooterStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+    padding: '12px 20px',
+    position: 'sticky',
+    background: 'rgba(17,17,17,0.95)',
+    backdropFilter: 'blur(2px)',
+  };
+
+  return createPortal(
+    <div style={overlayStyle} onClick={onClose} aria-modal="true" role="dialog">
+      <form
+        onClick={(e) => e.stopPropagation()}
+        onSubmit={handleSubmit}
+        style={cardStyle}
+      >
+        {/* Header */}
+        <div style={{ ...headerFooterStyle, top: 0, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>Add Player · {season}</h2>
+          <button type="button" onClick={onClose} aria-label="Close" style={{ padding: '4px 8px', borderRadius: 6 }}>
+            ✕
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm mb-1">Name</label>
-              <input {...register('name')} className="w-full bg-neutral-800 px-2 py-1 rounded" />
-              {errors.name && <p className="text-red-400 text-xs">{errors.name.message}</p>}
-            </div>
-            <div>
-              <label className="block text-sm mb-1">Source</label>
-              <select {...register('sourceType')} className="w-full bg-neutral-800 px-2 py-1 rounded">
-                <option>Recruiting</option>
-                <option>Transfer Portal</option>
-                <option>Existing Roster</option>
+        {/* Body */}
+        <div style={sectionStyle}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <span style={{ fontSize: 13, opacity: 0.8 }}>Position</span>
+              <select value={pos} onChange={(e) => setPos(e.target.value)} style={{ padding: '8px 10px', borderRadius: 8, background: '#1f2937', border: '1px solid #374151', color: '#e5e7eb' }}>
+                {['QB','RB','FB','WR','TE','LT','LG','C','RG','RT','LE','RE','DT','LOLB','MLB','ROLB','CB','FS','SS','K','P']
+                  .map(p => <option key={p} value={p}>{p}</option>)}
               </select>
+            </label>
+
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <span style={{ fontSize: 13, opacity: 0.8 }}>Enrollment Year</span>
+              <input type="number" value={enroll} onChange={e => setEnroll(Number(e.target.value))}
+                     style={{ padding: '8px 10px', borderRadius: 8, background: '#1f2937', border: '1px solid #374151', color: '#e5e7eb' }} />
+            </label>
+
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <span style={{ fontSize: 13, opacity: 0.8 }}>First Name</span>
+              <input value={first} onChange={e => setFirst(e.target.value)}
+                     style={{ padding: '8px 10px', borderRadius: 8, background: '#1f2937', border: '1px solid #374151', color: '#e5e7eb' }} />
+            </label>
+
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <span style={{ fontSize: 13, opacity: 0.8 }}>Last Name</span>
+              <input value={last} onChange={e => setLast(e.target.value)}
+                     style={{ padding: '8px 10px', borderRadius: 8, background: '#1f2937', border: '1px solid #374151', color: '#e5e7eb' }} />
+            </label>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <span style={{ fontSize: 13, opacity: 0.8 }}>Height (ft)</span>
+                <input type="number" value={ft} onChange={e => setFt(Number(e.target.value))}
+                       style={{ padding: '8px 10px', borderRadius: 8, background: '#1f2937', border: '1px solid #374151', color: '#e5e7eb' }} />
+              </label>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <span style={{ fontSize: 13, opacity: 0.8 }}>Height (in)</span>
+                <input type="number" value={inch} onChange={e => setInch(Number(e.target.value))}
+                       style={{ padding: '8px 10px', borderRadius: 8, background: '#1f2937', border: '1px solid #374151', color: '#e5e7eb' }} />
+              </label>
             </div>
 
-            <div>
-              <label className="block text-sm mb-1">Position</label>
-              <select {...register('position')} className="w-full bg-neutral-800 px-2 py-1 rounded">
-                <option value="">Select…</option>
-                {POSITIONS.map(p => <option key={p} value={p}>{p}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm mb-1">Archetype</label>
-              <select {...register('archetypeId')} className="w-full bg-neutral-800 px-2 py-1 rounded">
-                <option value="">Select…</option>
-                {filtered.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-              </select>
-            </div>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <span style={{ fontSize: 13, opacity: 0.8 }}>Weight (lb)</span>
+              <input type="number" value={wt} onChange={e => setWt(Number(e.target.value))}
+                     style={{ padding: '8px 10px', borderRadius: 8, background: '#1f2937', border: '1px solid #374151', color: '#e5e7eb' }} />
+            </label>
 
-            <div>
-              <label className="block text-sm mb-1">Class @ {registryYear}</label>
-              <select {...register('classYear')} className="w-full bg-neutral-800 px-2 py-1 rounded">
-                <option>Freshman</option><option>Sophomore</option>
-                <option>Junior</option><option>Senior</option>
-              </select>
-            </div>
-            <div className="flex items-center gap-2 mt-6">
-              <input type="checkbox" {...register('redshirt')} />
-              <span className="text-sm">Redshirt</span>
-            </div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+              <input type="checkbox" checked={redshirt} onChange={e => setRedshirt(e.target.checked)} />
+              <span style={{ fontSize: 13, opacity: 0.8 }}>Redshirt</span>
+            </label>
 
-            <div>
-              <label className="block text-sm mb-1">Height (in)</label>
-              <input type="number" {...register('heightIn')} className="w-full bg-neutral-800 px-2 py-1 rounded" />
-            </div>
-            <div>
-              <label className="block text-sm mb-1">Weight (lb)</label>
-              <input type="number" {...register('weightLb')} className="w-full bg-neutral-800 px-2 py-1 rounded" />
-            </div>
-
-            <div>
-              <label className="block text-sm mb-1">Handedness</label>
-              <select {...register('handedness')} className="w-full bg-neutral-800 px-2 py-1 rounded">
-                <option value="">—</option><option value="R">R</option><option value="L">L</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm mb-1">Dev Trait</label>
-              <select {...register('devTrait')} className="w-full bg-neutral-800 px-2 py-1 rounded">
-                {DEV_TRAITS.map(t => <option key={t}>{t}</option>)}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm mb-1">Dev Cap (0–99)</label>
-              <input type="number" {...register('devCap')} className="w-full bg-neutral-800 px-2 py-1 rounded" />
-            </div>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <span style={{ fontSize: 13, opacity: 0.8 }}>OVR (snapshot for {season})</span>
+              <input type="number" placeholder="leave blank if unknown" value={ovr}
+                     onChange={(e) => setOvr(e.target.value === '' ? '' : Number(e.target.value))}
+                     style={{ padding: '8px 10px', borderRadius: 8, background: '#1f2937', border: '1px solid #374151', color: '#e5e7eb' }} />
+            </label>
           </div>
+        </div>
 
-          {/* Dynamic subset inputs */}
-          {subsetKeys.length > 0 && (
-            <div>
-              <div className="font-medium mb-1">Archetype Subset Ratings</div>
-              <div className="grid grid-cols-3 gap-2">
-                {subsetKeys.map(k => (
-                  <div key={k}>
-                    <label className="block text-xs mb-1">{k}</label>
-                    <input
-                      type="number"
-                      {...register(`subset.${k}` as const)}
-                      className="w-full bg-neutral-800 px-2 py-1 rounded"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="flex justify-end gap-2 pt-2">
-            <button type="button" onClick={onClose} className="px-3 py-1 rounded bg-neutral-800">Cancel</button>
-            <button type="submit" disabled={isSubmitting} className="px-3 py-1 rounded bg-emerald-700">
-              {isSubmitting ? 'Saving…' : 'Add Player'}
+        {/* Footer */}
+        <div style={{ ...headerFooterStyle, bottom: 0, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+          <div />
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button type="button" onClick={onClose}
+                    style={{ padding: '8px 12px', borderRadius: 8, background: 'transparent', color: '#e5e7eb' }}>
+              Cancel
+            </button>
+            <button type="submit" disabled={saving}
+                    style={{ padding: '8px 12px', borderRadius: 8, background: '#4f46e5', color: 'white', opacity: saving ? 0.7 : 1 }}>
+              {saving ? 'Saving…' : 'Add Player'}
             </button>
           </div>
-        </form>
-      </div>
-    </div>
+        </div>
+      </form>
+    </div>,
+    document.body
   );
 }

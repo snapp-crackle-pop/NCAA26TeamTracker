@@ -3,12 +3,24 @@ import * as React from 'react';
 import { PlusIcon } from './Icons';
 
 type PlayerRow = {
-  id: string;
-  name: string;
-  position: string;
-  classYear: string | null;
-  ovr?: number | null;
-};
+    id: string;
+    position: string;
+    name: string;
+    nameAbbr?: string;     // from API
+    classYear: string | null;
+    heightIn?: number | null;
+    weightLb?: number | null;
+    ovr?: number | null;
+  };
+
+
+function toFtIn(h?: number | null) {
+    if (h == null) return '';
+    const ft = Math.floor(h / 12);
+    const inch = h % 12;
+    return `${ft}'${inch}"`;
+    }
+  
 
 export function PlayerDBPanel({
   season,
@@ -45,17 +57,21 @@ export function PlayerDBPanel({
         <table className="w-full text-sm">
           <thead className="sticky top-0 backdrop-blur bg-[var(--panel)] border-b border-[var(--chalk-stroke)]/40">
             <tr className="[&>th]:px-2 [&>th]:py-1 text-left">
-              <th className="table-th">Pos</th>
-              <th className="table-th">Name</th>
-              <th className="table-th text-right">OVR</th>
-            </tr>
+            <th className="w-12 text-left">Pos</th>
+            <th className="text-left">Name</th>
+            <th className="w-20 text-right">Ht</th>
+            <th className="w-20 text-right">Wt</th>
+            <th className="w-14 text-right">OVR</th>
+                        </tr>
           </thead>
           <tbody className="[&>tr:nth-child(odd)]:bg-white/3">
             {players.map(p => (
               <tr key={p.id} className="[&>td]:px-2 [&>td]:py-1">
-                <td className="font-mono text-xs opacity-80">{p.position}</td>
-                <td className="truncate">{p.name}</td>
-                <td className="text-right font-medium">{p.ovr ?? '—'}</td>
+                <td className="text-left">{p.position}</td>
+                <td className="text-left">{p.nameAbbr ?? p.name}</td>
+                <td className="text-right tabular-nums">{toFtIn(p.heightIn)}</td>
+                <td className="text-right tabular-nums">{p.weightLb ?? ''}</td>
+                <td className="text-right tabular-nums">{p.ovr ?? '—'}</td>
               </tr>
             ))}
             {players.length === 0 && (
@@ -70,7 +86,7 @@ export function PlayerDBPanel({
       </div>
 
       {/* Add player */}
-      <div className="p-2">
+      <div className="hidden">
         <button onClick={onAddClick} className="btn w-full flex items-center justify-center gap-2">
           <PlusIcon className="w-4 h-4" /> Add Player
         </button>

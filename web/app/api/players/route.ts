@@ -1,100 +1,60 @@
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { z } from 'zod';
-import { sanitizeStr } from '@/lib/enums';
-import { predictFromSubset } from '@/lib/predict';
 
 const prisma = new PrismaClient();
 
-const PlayerCreate = z.object({
-  name: z.string().min(1),
-  position: z.string(),
-  archetypeId: z.string().min(1),
-  heightIn: z.number().int().min(55).max(90).optional(),
-  weightLb: z.number().int().min(120).max(400).optional(),
-  handedness: z.string().optional(),
-  sourceType: z.enum(['Recruiting','Transfer Portal','Existing Roster']),
-  devTrait: z.enum(['Normal','Impact','Star','Elite']),
-  devCap: z.number().int().min(0).max(99).optional(),
-  enrollmentYear: z.number().int(),
-  redshirt: z.boolean().optional(),
-  transferFrom: z.string().optional(),
-  notes: z.string().optional(),
-  season: z.number().int(), // <-- season for initial snapshot (registryYear)
-  subset: z.record(z.string(), z.number().int().min(0).max(99)).default({})
-}).strip();
+function classYearFor(season: number, enroll: number, redshirt: boolean) {
+  const idx = Math.min(3, Math.max(0, season - enroll - (redshirt ? 1 : 0)));
+  return (['Freshman','Sophomore','Junior','Senior'] as const)[idx];
+}
+
+function abbr(name: string) {
+  const parts = name.trim().split(/\s+/);
+  const first = parts[0] ?? '';
+  const last  = parts[parts.length - 1] ?? '';
+  return `${first.charAt(0).toUpperCase()}.${last.toUpperCase()}`;
+}
 
 export async function GET(req: Request) {
-    const { searchParams } = new URL(req.url);
-    const seasonStr = searchParams.get('season');
-    const season = seasonStr ? Number(seasonStr) : NaN;
-    if (!seasonStr || Number.isNaN(season)) {
-      return NextResponse.json({ error: 'season required' }, { status: 400 });
-    }
-  
-    // Get OVR snapshot for the requested season (if present)
-    const snapshots = await prisma.ratingSnapshot.findMany({
-      where: { season },
-      select: { playerId: true, ovr: true },
-    });
-    const byPlayer = new Map(snapshots.map((s) => [s.playerId, s.ovr]));
-  
-    const players = await prisma.player.findMany({
-      orderBy: [{ position: 'asc' }, { name: 'asc' }],
-      select: { id: true, name: true, position: true, classYear: true },
-    });
-  
-    const rows = players.map((p) => ({
-      id: p.id,
-      name: p.name,
-      position: p.position,
-      classYear: p.classYear,
-      ovr: byPlayer.get(p.id) ?? null,
-    }));
-  
-    return NextResponse.json(rows);
+  const { searchParams } = new URL(req.url);
+  const season = Number(searchParams.get('season') ?? '');
+  if (!Number.isFinite(season)) {
+    return NextResponse.json({ error: 'season required' }, { status: 400 });
   }
 
-export async function POST(req: Request) {
-  const json = await req.json();
-  const parsed = PlayerCreate.parse(json);
-
-  const player = await prisma.player.create({
-    data: {
-      name: sanitizeStr(parsed.name),
-      position: parsed.position.trim(),
-      archetypeId: parsed.archetypeId,
-      heightIn: parsed.heightIn,
-      weightLb: parsed.weightLb,
-      handedness: parsed.handedness?.trim(),
-      sourceType: parsed.sourceType,
-      devTrait: parsed.devTrait,
-      devCap: parsed.devCap,
-      enrollmentYear: parsed.enrollmentYear,
-      redshirt: !!parsed.redshirt,
-      transferFrom: sanitizeStr(parsed.transferFrom),
-      notes: sanitizeStr(parsed.notes)
+  // all players (we'll filter to those on-roster for the season)
+  const players = await prisma.player.findMany({
+    orderBy: [{ position: 'asc' }, { name: 'asc' }],
+    select: {
+      id: true, name: true, position: true,
+      enrollmentYear: true, redshirt: true,
+      heightIn: true, weightLb: true
     }
   });
 
-  // Initial predicted snapshot
-  const { ratings, ovr } = await predictFromSubset({
-    position: player.position,
-    archetypeId: player.archetypeId!,
-    subset: parsed.subset,
-    devTrait: player.devTrait as any,
-    devCap: player.devCap ?? null
+  // roster filter: enrollmentYear <= season < graduation year
+  const onRoster = players.filter(p => {
+    const years = 4 + (p.redshirt ? 1 : 0);
+    return season >= p.enrollmentYear && season < p.enrollmentYear + years;
   });
 
-  await prisma.ratingSnapshot.create({
-    data: {
-      playerId: player.id,
-      season: parsed.season,
-      ratings: JSON.stringify(ratings),
-      ovr,
-      predicted: true
-    }
+  // pull OVR snapshot for that season (may be empty)
+  const snaps = await prisma.ratingSnapshot.findMany({
+    where: { season },
+    select: { playerId: true, ovr: true }
   });
+  const ovrById = new Map(snaps.map(s => [s.playerId, s.ovr]));
 
-  return NextResponse.json(player, { status: 201 });
+  const rows = onRoster.map(p => ({
+    id: p.id,
+    position: p.position,
+    name: p.name,
+    nameAbbr: abbr(p.name),
+    classYear: classYearFor(season, p.enrollmentYear, !!p.redshirt),
+    heightIn: p.heightIn ?? null,
+    weightLb: p.weightLb ?? null,
+    ovr: ovrById.get(p.id) ?? null
+  }));
+
+  return NextResponse.json(rows);
 }
