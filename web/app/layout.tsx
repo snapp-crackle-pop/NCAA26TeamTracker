@@ -3,8 +3,9 @@ import type { ReactNode } from 'react';
 import { cookies } from 'next/headers';
 import './globals.css';
 
-export default function RootLayout({ children }: { children: ReactNode }) {
-  const cookieTheme = cookies().get('theme')?.value as 'light' | 'dark' | undefined;
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  // Read the theme from cookies on the server (Next 15 requires awaiting cookies())
+  const cookieTheme = (await cookies()).get('theme')?.value as 'light' | 'dark' | undefined;
 
   return (
     <html lang="en" data-theme={cookieTheme} suppressHydrationWarning>
