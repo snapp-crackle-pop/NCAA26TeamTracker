@@ -82,6 +82,7 @@ export default function Home() {
           <div className="h-full min-h-0 sketch-panel p-2">
             <PlayerDBPanel
               season={baseSeason}
+              side={side}
               onSeasonChange={setBaseSeason}
               onAddClick={() => setOpenAdd(true)}
             />
