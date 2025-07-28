@@ -1,12 +1,12 @@
-import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+export const runtime = 'nodejs';
 
-const prisma = new PrismaClient();
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   const rows = await prisma.formation.findMany({
+    select: { id: true, side: true, name: true, variant: true },
     orderBy: [{ side: 'asc' }, { name: 'asc' }, { variant: 'asc' }],
-    select: { id: true, side: true, name: true, variant: true }
   });
   return NextResponse.json(rows);
 }

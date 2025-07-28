@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------- Theme tokens ---------- */
+
+/* add near the top (after tailwind directives) */
+html, body {
+    height: 100%;
+    overflow: hidden;       /* disable page scrolling */
+  }
+
+/* Light defaults */
+:root {
+  --bg: #f6f7fb;
+  --text: #0b1220;
+  --muted: #475569;
+
+  --panel: rgba(255,255,255,0.9);
+  --panel-border: rgba(10,20,30,0.18);
+
+  --grid-major: #e5e7ebcc;
+  --grid-minor: #e5e7eb80;
+
+  --scribble-bg: rgba(245,247,250,0.9);
+  --scribble-border: rgba(10,20,30,0.18);
+
+  --bubble-text: #0b122a;
+
+  --frame-line: rgba(10,20,30,0.25);
+}
+
+/* Dark overrides */
+.dark {
+  --bg: #0b0f18;
+  --text: #e5e7eb;
+  --muted: #94a3b8;
+
+  --panel: rgba(12,18,30,0.82);
+  --panel-border: rgba(230,235,245,0.25);
+
+  --grid-major: #1f2937cc;
+  --grid-minor: #11182780;
+
+  --scribble-bg: rgba(12,18,30,0.82);
+  --scribble-border: rgba(230,235,245,0.25);
+
+  --bubble-text: #0f172a;
+
+  --frame-line: rgba(230,235,245,0.30);
+}
+
+/* ---------- App background ---------- */
+.app-bg {
+  background:
+    radial-gradient(1200px 800px at 80% 100%, rgba(255,255,255,0.04), transparent 60%),
+    radial-gradient(1000px 700px at 0% 0%, rgba(255,255,255,0.03), transparent 50%),
+    var(--bg);
+  color: var(--text);
+}
+
+/* Chalkboard grid */
+.board-grid {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(var(--grid-major) 1px, transparent 1px) 0 0 / 64px 64px,
+    linear-gradient(90deg, var(--grid-major) 1px, transparent 1px) 0 0 / 64px 64px,
+    linear-gradient(var(--grid-minor) 1px, transparent 1px) 0 0 / 16px 16px,
+    linear-gradient(90deg, var(--grid-minor) 1px, transparent 1px) 0 0 / 16px 16px;
+  pointer-events: none;
+}
+
+/* Chalky type */
+.chalk {
+  font-family: 'Short Stack','Architects Daughter',ui-rounded,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  letter-spacing: .4px;
+  text-shadow: 0 1px 0 rgba(255,255,255,.06), 0 0 2px rgba(255,255,255,.03);
+}
+
+/* Scribble panels */
+.scribble-surface {
+  background: var(--scribble-bg);
+  border-radius: 14px;
+  border: 2px solid var(--scribble-border);
+  box-shadow: 0 0 0 2px rgba(0,0,0,.25) inset, 0 2px 10px rgba(0,0,0,.35);
+}
+
+/* Visible resizer with grip */
+.resizer { position: relative; width: 12px; }
+.resizer::before { content:""; position:absolute; inset:0; left:5px; width:2px; background: var(--frame-line); }
+.resizer .grip {
+  position:absolute; left:50%; top:50%; width:16px; height:22px; transform:translate(-50%,-50%);
+  background: radial-gradient(circle at 50% 4px, rgba(226,232,240,.9) 2px, transparent 3px) 0 0/100% 8px repeat-y;
+  opacity:.8;
+}
+
+/* Round bubble */
+.bubble {
+  display:grid; place-items:center; border-radius:9999px;
+  border:1px solid rgba(226,232,240,.7);
+  color: var(--bubble-text);
+  background: linear-gradient(#f8fafc, #cbd5e1);
+  box-shadow: 0 2px 6px rgba(0,0,0,.35), inset 0 0 0 2px rgba(255,255,255,.35);
+}
+
+/* Player dot stroke */
+.dot {
+  box-shadow: 0 0 0 2px rgba(255,255,255,.85), 0 2px 6px rgba(0,0,0,.35);
+  border: 1px solid rgba(0,0,0,.35);
+}
